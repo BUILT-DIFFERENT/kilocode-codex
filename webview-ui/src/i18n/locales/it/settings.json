@@ -603,6 +603,14 @@
 			"maxTokensLabel": "Token di output massimi",
 			"maxTokensDescription": "Numero massimo di token di output per le risposte di Claude Code. Il valore predefinito è 8000."
 		},
+		"codexCli": {
+			"pathLabel": "Codex CLI Path",
+			"pathDescription": "Optional path to your Codex CLI binary. Defaults to 'codex' if not set.",
+			"description": "This provider uses the Codex CLI to run models locally via `codex exec --json`.",
+			"instructions": "If you haven't installed Codex yet, run",
+			"instructionsContinued": "in your terminal first.",
+			"setupLink": "Codex CLI Setup Instructions"
+		},
 		"geminiCli": {
 			"description": "Questo provider utilizza l'autenticazione OAuth dallo strumento Gemini CLI e non richiede chiavi API.",
 			"oauthPath": "Percorso Credenziali OAuth (opzionale)",

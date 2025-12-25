@@ -4,6 +4,7 @@ export * from "./bedrock.js"
 export * from "./cerebras.js"
 export * from "./chutes.js"
 export * from "./claude-code.js"
+export * from "./codex-cli.js"
 export * from "./deepseek.js"
 export * from "./doubao.js"
 export * from "./featherless.js"
@@ -47,6 +48,7 @@ import { bedrockDefaultModelId } from "./bedrock.js"
 import { cerebrasDefaultModelId } from "./cerebras.js"
 import { chutesDefaultModelId } from "./chutes.js"
 import { claudeCodeDefaultModelId } from "./claude-code.js"
+import { codexCliDefaultModelId } from "./codex-cli.js"
 import { deepSeekDefaultModelId } from "./deepseek.js"
 import { doubaoDefaultModelId } from "./doubao.js"
 import { featherlessDefaultModelId } from "./featherless.js"
@@ -139,6 +141,8 @@ export function getProviderDefaultModelId(
 			return vscodeLlmDefaultModelId
 		case "claude-code":
 			return claudeCodeDefaultModelId
+		case "codex-cli":
+			return codexCliDefaultModelId
 		case "cerebras":
 			return cerebrasDefaultModelId
 		case "sambanova":
