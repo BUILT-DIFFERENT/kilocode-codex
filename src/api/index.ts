@@ -39,6 +39,7 @@ import {
 	SapAiCoreHandler,
 	// kilocode_change end
 	ClaudeCodeHandler,
+	CodexCliHandler,
 	QwenCodeHandler,
 	SambaNovaHandler,
 	IOIntelligenceHandler,
@@ -156,6 +157,8 @@ export function buildApiHandler(configuration: ProviderSettings): ApiHandler {
 			return new AnthropicHandler(options)
 		case "claude-code":
 			return new ClaudeCodeHandler(options)
+		case "codex-cli":
+			return new CodexCliHandler(options)
 		// kilocode_change start
 		case "glama":
 			return new GlamaHandler(options)

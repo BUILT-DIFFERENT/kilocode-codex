@@ -183,6 +183,7 @@ describe("ProfileValidator", () => {
 		// Test specific providers that use apiModelId
 		const apiModelProviders = [
 			"anthropic",
+			"codex-cli",
 			"openai-native",
 			"bedrock",
 			"vertex",

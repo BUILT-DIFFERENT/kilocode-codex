@@ -593,6 +593,14 @@
 			"maxTokensLabel": "Số token đầu ra tối đa",
 			"maxTokensDescription": "Số lượng token đầu ra tối đa cho các phản hồi của Claude Code. Mặc định là 8000."
 		},
+		"codexCli": {
+			"pathLabel": "Codex CLI Path",
+			"pathDescription": "Optional path to your Codex CLI binary. Defaults to 'codex' if not set.",
+			"description": "This provider uses the Codex CLI to run models locally via `codex exec --json`.",
+			"instructions": "If you haven't installed Codex yet, run",
+			"instructionsContinued": "in your terminal first.",
+			"setupLink": "Codex CLI Setup Instructions"
+		},
 		"geminiCli": {
 			"description": "Nhà cung cấp này sử dụng xác thực OAuth từ công cụ Gemini CLI và không yêu cầu khóa API.",
 			"oauthPath": "Đường dẫn Thông tin xác thực OAuth (tùy chọn)",

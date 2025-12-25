@@ -28,6 +28,8 @@ import {
 	vscodeLlmDefaultModelId,
 	openRouterDefaultModelId,
 	claudeCodeModels,
+	codexCliDefaultModelId,
+	codexCliModels,
 	sambaNovaModels,
 	doubaoModels,
 	internationalZAiModels,
@@ -419,6 +421,11 @@ function getSelectedModel({
 			const id = apiConfiguration.apiModelId ?? geminiCliDefaultModelId
 			const info = geminiCliModels[id as keyof typeof geminiCliModels]
 			return { id, info }
+		}
+		case "codex-cli": {
+			const id = apiConfiguration.apiModelId ?? codexCliDefaultModelId
+			const info = codexCliModels[id as keyof typeof codexCliModels]
+			return { id, info: { ...openAiModelInfoSaneDefaults, ...info } }
 		}
 		case "virtual-quota-fallback": {
 			if (virtualQuotaActiveModel) {

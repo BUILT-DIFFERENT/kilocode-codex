@@ -593,6 +593,14 @@
 			"maxTokensLabel": "최대 출력 토큰",
 			"maxTokensDescription": "Claude Code 응답의 최대 출력 토큰 수. 기본값은 8000입니다."
 		},
+		"codexCli": {
+			"pathLabel": "Codex CLI Path",
+			"pathDescription": "Optional path to your Codex CLI binary. Defaults to 'codex' if not set.",
+			"description": "This provider uses the Codex CLI to run models locally via `codex exec --json`.",
+			"instructions": "If you haven't installed Codex yet, run",
+			"instructionsContinued": "in your terminal first.",
+			"setupLink": "Codex CLI Setup Instructions"
+		},
 		"geminiCli": {
 			"description": "이 공급자는 Gemini CLI 도구의 OAuth 인증을 사용하며 API 키가 필요하지 않습니다.",
 			"oauthPath": "OAuth 자격 증명 경로 (선택사항)",

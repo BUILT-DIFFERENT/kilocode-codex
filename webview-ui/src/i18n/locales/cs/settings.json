@@ -623,6 +623,14 @@
 			"maxTokensLabel": "Maximální počet výstupních tokenů",
 			"maxTokensDescription": "Maximální počet výstupních tokenů pro odpovědi Claude Code. Výchozí je 8000."
 		},
+		"codexCli": {
+			"pathLabel": "Codex CLI Path",
+			"pathDescription": "Optional path to your Codex CLI binary. Defaults to 'codex' if not set.",
+			"description": "This provider uses the Codex CLI to run models locally via `codex exec --json`.",
+			"instructions": "If you haven't installed Codex yet, run",
+			"instructionsContinued": "in your terminal first.",
+			"setupLink": "Codex CLI Setup Instructions"
+		},
 		"geminiCli": {
 			"description": "Tento poskytovatel používá OAuth autentizaci z nástroje Gemini CLI a nevyžaduje klíče API.",
 			"oauthPath": "Cesta k OAuth přihlašovacím údajům (volitelné)",

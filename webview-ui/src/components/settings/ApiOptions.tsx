@@ -17,6 +17,7 @@ import {
 	anthropicDefaultModelId,
 	doubaoDefaultModelId,
 	claudeCodeDefaultModelId,
+	codexCliDefaultModelId,
 	qwenCodeDefaultModelId,
 	geminiDefaultModelId,
 	geminiCliDefaultModelId,
@@ -83,6 +84,7 @@ import {
 	Cerebras,
 	Chutes,
 	ClaudeCode,
+	CodexCli,
 	DeepSeek,
 	Doubao,
 	Gemini,
@@ -391,6 +393,7 @@ const ApiOptions = ({
 				anthropic: { field: "apiModelId", default: anthropicDefaultModelId },
 				cerebras: { field: "apiModelId", default: cerebrasDefaultModelId },
 				"claude-code": { field: "apiModelId", default: claudeCodeDefaultModelId },
+				"codex-cli": { field: "apiModelId", default: codexCliDefaultModelId },
 				"qwen-code": { field: "apiModelId", default: qwenCodeDefaultModelId },
 				"openai-native": { field: "apiModelId", default: openAiNativeDefaultModelId },
 				gemini: { field: "apiModelId", default: geminiDefaultModelId },
@@ -458,6 +461,7 @@ const ApiOptions = ({
 		// Providers that don't have documentation pages yet
 		const excludedProviders = [
 			"gemini-cli",
+			"codex-cli",
 			"moonshot",
 			"chutes",
 			"cerebras",
@@ -838,6 +842,10 @@ const ApiOptions = ({
 			{/* kilocode_change start */}
 			{selectedProvider === "gemini-cli" && (
 				<GeminiCli apiConfiguration={apiConfiguration} setApiConfigurationField={setApiConfigurationField} />
+			)}
+
+			{selectedProvider === "codex-cli" && (
+				<CodexCli apiConfiguration={apiConfiguration} setApiConfigurationField={setApiConfigurationField} />
 			)}
 
 			{selectedProvider === "virtual-quota-fallback" && (

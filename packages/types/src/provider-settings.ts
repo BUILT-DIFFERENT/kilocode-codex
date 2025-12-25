@@ -9,6 +9,7 @@ import {
 	bedrockModels,
 	cerebrasModels,
 	claudeCodeModels,
+	codexCliModels,
 	deepSeekModels,
 	doubaoModels,
 	featherlessModels,
@@ -137,6 +138,7 @@ export const providerNames = [
 	"baseten",
 	"cerebras",
 	"claude-code",
+	"codex-cli",
 	"doubao",
 	"deepseek",
 	"featherless",
@@ -229,6 +231,10 @@ const anthropicSchema = apiModelIdProviderModelSchema.extend({
 const claudeCodeSchema = apiModelIdProviderModelSchema.extend({
 	claudeCodePath: z.string().optional(),
 	claudeCodeMaxOutputTokens: z.number().int().min(1).max(200000).optional(),
+})
+
+const codexCliSchema = apiModelIdProviderModelSchema.extend({
+	codexCliPath: z.string().optional(),
 })
 
 // kilocode_change start
@@ -543,6 +549,7 @@ const defaultSchema = z.object({
 export const providerSettingsSchemaDiscriminated = z.discriminatedUnion("apiProvider", [
 	anthropicSchema.merge(z.object({ apiProvider: z.literal("anthropic") })),
 	claudeCodeSchema.merge(z.object({ apiProvider: z.literal("claude-code") })),
+	codexCliSchema.merge(z.object({ apiProvider: z.literal("codex-cli") })),
 	glamaSchema.merge(z.object({ apiProvider: z.literal("glama") })), // kilocode_change
 	nanoGptSchema.merge(z.object({ apiProvider: z.literal("nano-gpt") })), // kilocode_change
 	openRouterSchema.merge(z.object({ apiProvider: z.literal("openrouter") })),
@@ -595,6 +602,7 @@ export const providerSettingsSchema = z.object({
 	apiProvider: providerNamesSchema.optional(),
 	...anthropicSchema.shape,
 	...claudeCodeSchema.shape,
+	...codexCliSchema.shape,
 	...glamaSchema.shape, // kilocode_change
 	...nanoGptSchema.shape, // kilocode_change
 	...openRouterSchema.shape,
@@ -700,6 +708,7 @@ export const isTypicalProvider = (key: unknown): key is TypicalProvider =>
 export const modelIdKeysByProvider: Record<TypicalProvider, ModelIdKey> = {
 	anthropic: "apiModelId",
 	"claude-code": "apiModelId",
+	"codex-cli": "apiModelId",
 	glama: "glamaModelId", // kilocode_change
 	"nano-gpt": "nanoGptModelId", // kilocode_change
 	openrouter: "openRouterModelId",
@@ -796,6 +805,7 @@ export const MODELS_BY_PROVIDER: Record<
 		models: Object.keys(cerebrasModels),
 	},
 	"claude-code": { id: "claude-code", label: "Claude Code", models: Object.keys(claudeCodeModels) },
+	"codex-cli": { id: "codex-cli", label: "Codex CLI", models: Object.keys(codexCliModels) },
 	deepseek: {
 		id: "deepseek",
 		label: "DeepSeek",
