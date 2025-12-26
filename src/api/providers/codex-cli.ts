@@ -4,10 +4,11 @@ import { codexCliDefaultModelId, codexCliModels, type CodexCliModelId, type Mode
 import type { ApiHandler, ApiHandlerCreateMessageMetadata } from "../index"
 import type { ApiStream } from "../transform/stream"
 import { ensureCodexLogin, runCodexExec } from "../../integrations/codex/run"
+import { filterMessagesForCodexCli } from "../../integrations/codex/message-filter"
 import type { ApiHandlerOptions } from "../../shared/api"
-import { convertToSimpleMessages } from "../transform/simple-format"
 import { calculateApiCostOpenAI } from "../../shared/cost"
 import { BaseProvider } from "./base-provider"
+import type { CodexCliMessagePayload } from "@roo-code/types"
 
 type CodexCliEvent = Record<string, any>
 
@@ -207,24 +208,65 @@ function getCodexAuthEnv(authMode: "chatgpt" | "api-key", apiKey?: string): Node
 	}
 }
 
-function buildCodexPrompt(systemPrompt: string, messages: Anthropic.Messages.MessageParam[]) {
-	const parts: string[] = []
-	const trimmedSystem = systemPrompt?.trim()
+function buildCodexPrompt(systemPrompt: string, messages: Anthropic.Messages.MessageParam[]): CodexCliMessagePayload {
+	const filteredMessages = filterMessagesForCodexCli(messages)
+	const trimmedSystemPrompt = systemPrompt?.trim()
 
-	if (trimmedSystem) {
-		parts.push(`System: ${trimmedSystem}`)
+	return {
+		systemPrompt: trimmedSystemPrompt && trimmedSystemPrompt.length > 0 ? trimmedSystemPrompt : undefined,
+		messages: filteredMessages.map((message) => ({
+			role: message.role,
+			content: convertContent(message.content),
+		})),
+	}
+}
+
+function convertContent(
+	content: Anthropic.Messages.MessageParam["content"],
+): CodexCliMessagePayload["messages"][number]["content"] {
+	if (typeof content === "string") {
+		return content
 	}
 
-	for (const message of convertToSimpleMessages(messages)) {
-		if (!message.content) {
-			continue
-		}
+	return content
+		.map((block) => {
+			if (block.type === "text") {
+				return { type: "text" as const, text: block.text }
+			}
 
-		const roleLabel = message.role === "assistant" ? "Assistant" : "User"
-		parts.push(`${roleLabel}: ${message.content}`)
-	}
+			if (block.type === "tool_use") {
+				return {
+					type: "tool_use" as const,
+					id: block.id,
+					name: block.name,
+					input: block.input,
+				}
+			}
 
-	return parts.join("\n\n")
+			if (block.type === "tool_result") {
+				const toolResultContent = block.content
+
+				return {
+					type: "tool_result" as const,
+					tool_use_id: block.tool_use_id,
+					content:
+						typeof toolResultContent === "string"
+							? toolResultContent
+							: (Array.isArray(toolResultContent) ? toolResultContent : [])
+									.map((resultBlock) => {
+										if (resultBlock.type === "text") {
+											return { type: "text" as const, text: resultBlock.text }
+										}
+
+										return null
+									})
+									.filter(Boolean),
+				}
+			}
+
+			return null
+		})
+		.filter(Boolean) as CodexCliMessagePayload["messages"][number]["content"]
 }
 
 function getCodexError(event: CodexCliEvent): string | null {

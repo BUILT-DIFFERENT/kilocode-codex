@@ -19,3 +19,33 @@ export const codexCliModels = {
 		supportsImages: false,
 	},
 } as const satisfies Record<CodexCliModelId, ModelInfo>
+
+export type CodexCliTextContent = {
+	type: "text"
+	text: string
+}
+
+export type CodexCliToolUseContent = {
+	type: "tool_use"
+	id?: string
+	name: string
+	input: unknown
+}
+
+export type CodexCliToolResultContent = {
+	type: "tool_result"
+	tool_use_id?: string
+	content: string | CodexCliTextContent[]
+}
+
+export type CodexCliMessageContent = CodexCliTextContent | CodexCliToolUseContent | CodexCliToolResultContent
+
+export type CodexCliMessage = {
+	role: "user" | "assistant"
+	content: string | CodexCliMessageContent[]
+}
+
+export type CodexCliMessagePayload = {
+	systemPrompt?: string
+	messages: CodexCliMessage[]
+}
