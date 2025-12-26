@@ -3,7 +3,7 @@ import { codexCliDefaultModelId, codexCliModels, type CodexCliModelId, type Mode
 
 import type { ApiHandler, ApiHandlerCreateMessageMetadata } from "../index"
 import type { ApiStream } from "../transform/stream"
-import { runCodexExec } from "../../integrations/codex/run"
+import { ensureCodexLogin, runCodexExec } from "../../integrations/codex/run"
 import type { ApiHandlerOptions } from "../../shared/api"
 import { convertToSimpleMessages } from "../transform/simple-format"
 import { calculateApiCostOpenAI } from "../../shared/cost"
@@ -26,11 +26,18 @@ export class CodexCliHandler extends BaseProvider implements ApiHandler {
 	): ApiStream {
 		const model = this.getModel()
 		const prompt = buildCodexPrompt(systemPrompt, messages)
+		const authMode = this.options.codexCliAuthMode ?? "chatgpt"
+		const env = getCodexAuthEnv(authMode, this.options.codexCliApiKey)
+
+		if (authMode === "chatgpt") {
+			await ensureCodexLogin({ path: this.options.codexCliPath, env })
+		}
 
 		for await (const event of runCodexExec({
 			prompt,
 			path: this.options.codexCliPath,
 			modelId: model.id,
+			env,
 		})) {
 			const errorMessage = getCodexError(event)
 			if (errorMessage) {
@@ -185,6 +192,16 @@ export class CodexCliHandler extends BaseProvider implements ApiHandler {
 			reasoningTokens,
 			totalCost,
 		}
+	}
+}
+
+function getCodexAuthEnv(authMode: "chatgpt" | "api-key", apiKey?: string): NodeJS.ProcessEnv | undefined {
+	if (authMode !== "api-key" || !apiKey) {
+		return undefined
+	}
+
+	return {
+		OPENAI_API_KEY: apiKey,
 	}
 }
 

@@ -233,8 +233,12 @@ const claudeCodeSchema = apiModelIdProviderModelSchema.extend({
 	claudeCodeMaxOutputTokens: z.number().int().min(1).max(200000).optional(),
 })
 
+const codexCliAuthModeSchema = z.enum(["chatgpt", "api-key"])
+
 const codexCliSchema = apiModelIdProviderModelSchema.extend({
 	codexCliPath: z.string().optional(),
+	codexCliAuthMode: codexCliAuthModeSchema.optional(),
+	codexCliApiKey: z.string().optional(),
 })
 
 // kilocode_change start

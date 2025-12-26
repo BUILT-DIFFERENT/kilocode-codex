@@ -4,16 +4,19 @@ import { calculateApiCostOpenAI } from "../../../shared/cost"
 
 vi.mock("../../../integrations/codex/run", () => ({
 	runCodexExec: vi.fn(),
+	ensureCodexLogin: vi.fn(),
 }))
 
-const { runCodexExec } = await import("../../../integrations/codex/run")
+const { runCodexExec, ensureCodexLogin } = await import("../../../integrations/codex/run")
 const mockRunCodexExec = vi.mocked(runCodexExec)
+const mockEnsureCodexLogin = vi.mocked(ensureCodexLogin)
 
 describe("CodexCliHandler", () => {
 	let handler: CodexCliHandler
 
 	beforeEach(() => {
 		vi.clearAllMocks()
+		mockEnsureCodexLogin.mockResolvedValue()
 		const options: ApiHandlerOptions = {
 			codexCliPath: "codex",
 			apiModelId: "gpt-5.1-codex",
@@ -52,10 +55,36 @@ describe("CodexCliHandler", () => {
 		const iterator = stream[Symbol.asyncIterator]()
 		await iterator.next()
 
+		expect(mockEnsureCodexLogin).toHaveBeenCalledWith({ path: "codex", env: undefined })
 		expect(mockRunCodexExec).toHaveBeenCalledWith({
 			prompt: "System: You are a helpful assistant.\n\nUser: Hello\n\nAssistant: Hi there",
 			path: "codex",
 			modelId: "gpt-5.1-codex",
+			env: undefined,
+		})
+	})
+
+	test("should pass api key environment and skip login for api-key auth", async () => {
+		const options: ApiHandlerOptions = {
+			codexCliPath: "codex",
+			apiModelId: "gpt-5.1-codex",
+			codexCliAuthMode: "api-key",
+			codexCliApiKey: "sk-test-123",
+		}
+		handler = new CodexCliHandler(options)
+		const mockGenerator = async function* (): AsyncGenerator<Record<string, unknown>> {}
+		mockRunCodexExec.mockReturnValue(mockGenerator())
+
+		const stream = handler.createMessage("Hello", [{ role: "user" as const, content: "Hi" }])
+		const iterator = stream[Symbol.asyncIterator]()
+		await iterator.next()
+
+		expect(mockEnsureCodexLogin).not.toHaveBeenCalled()
+		expect(mockRunCodexExec).toHaveBeenCalledWith({
+			prompt: "System: Hello\n\nUser: Hi",
+			path: "codex",
+			modelId: "gpt-5.1-codex",
+			env: { OPENAI_API_KEY: "sk-test-123" },
 		})
 	})
 
