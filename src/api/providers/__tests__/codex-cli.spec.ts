@@ -52,7 +52,7 @@ describe("CodexCliHandler", () => {
 		expect(model.id).toBe("gpt-5.1-codex-max")
 	})
 
-	test("should call runCodexExec with prompt and model", async () => {
+	test("should call runCodexExec with structured prompt and model", async () => {
 		const systemPrompt = "You are a helpful assistant."
 		const messages = [
 			{ role: "user" as const, content: "Hello" },
@@ -68,7 +68,13 @@ describe("CodexCliHandler", () => {
 
 		expect(mockEnsureCodexLogin).toHaveBeenCalledWith({ path: "codex", env: undefined })
 		expect(mockRunCodexExec).toHaveBeenCalledWith({
-			prompt: "System: You are a helpful assistant.\n\nUser: Hello\n\nAssistant: Hi there",
+			prompt: {
+				systemPrompt: "You are a helpful assistant.",
+				messages: [
+					{ role: "user", content: "Hello" },
+					{ role: "assistant", content: "Hi there" },
+				],
+			},
 			path: "codex",
 			modelId: "gpt-5.1-codex",
 			outputSchema: undefined,
@@ -96,12 +102,132 @@ describe("CodexCliHandler", () => {
 		await iterator.next()
 
 		expect(mockRunCodexExec).toHaveBeenCalledWith({
-			prompt: "System: Hello\n\nUser: Hi",
+			prompt: {
+				systemPrompt: "Hello",
+				messages: [{ role: "user", content: "Hi" }],
+			},
 			path: "codex",
 			modelId: "gpt-5.1-codex",
 			outputSchema: "schema.json",
 			sandbox: "docker",
 			fullAuto: true,
+			env: undefined,
+		})
+	})
+
+	test("should build structured messages with tool calls and results", async () => {
+		const systemPrompt = "System prompt"
+		const messages = [
+			{ role: "user" as const, content: [{ type: "text" as const, text: "Use a tool" }] },
+			{
+				role: "assistant" as const,
+				content: [
+					{
+						type: "tool_use" as const,
+						id: "call-1",
+						name: "run_command",
+						input: { command: "ls" },
+					},
+					{ type: "text" as const, text: "Running..." },
+				],
+			},
+			{
+				role: "user" as const,
+				content: [
+					{
+						type: "tool_result" as const,
+						tool_use_id: "call-1",
+						content: [{ type: "text" as const, text: "done" }],
+					},
+				],
+			},
+		]
+
+		const mockGenerator = async function* (): AsyncGenerator<Record<string, unknown>> {}
+		mockRunCodexExec.mockReturnValue(mockGenerator())
+
+		const stream = handler.createMessage(systemPrompt, messages)
+		const iterator = stream[Symbol.asyncIterator]()
+		await iterator.next()
+
+		expect(mockRunCodexExec).toHaveBeenCalledWith({
+			prompt: {
+				systemPrompt,
+				messages: [
+					{ role: "user", content: [{ type: "text", text: "Use a tool" }] },
+					{
+						role: "assistant",
+						content: [
+							{
+								type: "tool_use",
+								id: "call-1",
+								name: "run_command",
+								input: { command: "ls" },
+							},
+							{ type: "text", text: "Running..." },
+						],
+					},
+					{
+						role: "user",
+						content: [
+							{
+								type: "tool_result",
+								tool_use_id: "call-1",
+								content: [{ type: "text", text: "done" }],
+							},
+						],
+					},
+				],
+			},
+			path: "codex",
+			modelId: "gpt-5.1-codex",
+			outputSchema: undefined,
+			sandbox: undefined,
+			fullAuto: undefined,
+			env: undefined,
+		})
+	})
+
+	test("should replace images with placeholders for Codex CLI", async () => {
+		const messages = [
+			{
+				role: "user" as const,
+				content: [
+					{
+						type: "image" as const,
+						source: { type: "base64", media_type: "image/png", data: "abc" },
+					},
+				],
+			},
+		]
+
+		const mockGenerator = async function* (): AsyncGenerator<Record<string, unknown>> {}
+		mockRunCodexExec.mockReturnValue(mockGenerator())
+
+		const stream = handler.createMessage("System", messages)
+		const iterator = stream[Symbol.asyncIterator]()
+		await iterator.next()
+
+		expect(mockRunCodexExec).toHaveBeenCalledWith({
+			prompt: {
+				systemPrompt: "System",
+				messages: [
+					{
+						role: "user",
+						content: [
+							{
+								type: "text",
+								text: "[Image (base64): image/png not supported by Codex CLI]",
+							},
+						],
+					},
+				],
+			},
+			path: "codex",
+			modelId: "gpt-5.1-codex",
+			outputSchema: undefined,
+			sandbox: undefined,
+			fullAuto: undefined,
 			env: undefined,
 		})
 	})
@@ -123,7 +249,10 @@ describe("CodexCliHandler", () => {
 
 		expect(mockEnsureCodexLogin).not.toHaveBeenCalled()
 		expect(mockRunCodexExec).toHaveBeenCalledWith({
-			prompt: "System: Hello\n\nUser: Hi",
+			prompt: {
+				systemPrompt: "Hello",
+				messages: [{ role: "user", content: "Hi" }],
+			},
 			path: "codex",
 			modelId: "gpt-5.1-codex",
 			outputSchema: undefined,

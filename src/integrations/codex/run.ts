@@ -1,11 +1,12 @@
 import * as vscode from "vscode"
 import readline from "readline"
 import { execa } from "execa"
+import type { CodexCliMessagePayload } from "@roo-code/types"
 
 export type CodexCliEvent = Record<string, any>
 
 type CodexCliOptions = {
-	prompt: string
+	prompt: CodexCliMessagePayload
 	path?: string
 	modelId?: string
 	outputSchema?: string
@@ -191,7 +192,7 @@ async function getCodexAuthStatusFromExec({
 }
 
 function runProcess(options: CodexCliOptions) {
-	const { prompt, path, modelId, env, outputSchema, sandbox, fullAuto } = options
+	const { prompt: promptPayload, path, modelId, env, outputSchema, sandbox, fullAuto } = options
 	const codexPath = path || "codex"
 	const args = ["exec", "--json"]
 	const resolvedModelId = modelId?.trim()
@@ -223,9 +224,11 @@ function runProcess(options: CodexCliOptions) {
 		maxBuffer: 1024 * 1024 * 1000,
 	})
 
+	const stdinData = JSON.stringify(promptPayload)
+
 	setImmediate(() => {
 		try {
-			child.stdin.write(prompt, "utf8", (error: Error | null | undefined) => {
+			child.stdin.write(stdinData, "utf8", (error: Error | null | undefined) => {
 				if (error) {
 					console.error("Error writing to Codex CLI stdin:", error)
 					child.kill()
