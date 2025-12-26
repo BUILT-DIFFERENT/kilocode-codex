@@ -264,6 +264,7 @@ export const SECRET_STATE_KEYS = [
 	"ollamaApiKey",
 	"geminiApiKey",
 	"openAiNativeApiKey",
+	"codexCliApiKey",
 	"cerebrasApiKey",
 	"deepSeekApiKey",
 	"doubaoApiKey",
