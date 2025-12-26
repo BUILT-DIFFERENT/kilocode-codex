@@ -30,13 +30,24 @@ describe("CodexCliHandler", () => {
 		expect(model.info.supportsImages).toBe(false)
 	})
 
-	test("should fall back to default model when invalid", () => {
+	test("should use custom model when configured", () => {
 		const options: ApiHandlerOptions = {
 			codexCliPath: "codex",
-			apiModelId: "invalid-model",
+			apiModelId: "custom-codex-model",
 		}
-		const handlerWithInvalidModel = new CodexCliHandler(options)
-		const model = handlerWithInvalidModel.getModel()
+		const handlerWithCustomModel = new CodexCliHandler(options)
+		const model = handlerWithCustomModel.getModel()
+
+		expect(model.id).toBe("custom-codex-model")
+	})
+
+	test("should fall back to default model when no model is provided", () => {
+		const options: ApiHandlerOptions = {
+			codexCliPath: "codex",
+			apiModelId: "   ",
+		}
+		const handlerWithNoModel = new CodexCliHandler(options)
+		const model = handlerWithNoModel.getModel()
 
 		expect(model.id).toBe("gpt-5.1-codex-max")
 	})
@@ -60,6 +71,37 @@ describe("CodexCliHandler", () => {
 			prompt: "System: You are a helpful assistant.\n\nUser: Hello\n\nAssistant: Hi there",
 			path: "codex",
 			modelId: "gpt-5.1-codex",
+			outputSchema: undefined,
+			sandbox: undefined,
+			fullAuto: undefined,
+			env: undefined,
+		})
+	})
+
+	test("should pass Codex CLI overrides to runCodexExec", async () => {
+		const options: ApiHandlerOptions = {
+			codexCliPath: "codex",
+			apiModelId: "gpt-5.1-codex",
+			codexCliOutputSchema: "schema.json",
+			codexCliSandbox: "docker",
+			codexCliFullAuto: true,
+		}
+		handler = new CodexCliHandler(options)
+
+		const mockGenerator = async function* (): AsyncGenerator<Record<string, unknown>> {}
+		mockRunCodexExec.mockReturnValue(mockGenerator())
+
+		const stream = handler.createMessage("Hello", [{ role: "user" as const, content: "Hi" }])
+		const iterator = stream[Symbol.asyncIterator]()
+		await iterator.next()
+
+		expect(mockRunCodexExec).toHaveBeenCalledWith({
+			prompt: "System: Hello\n\nUser: Hi",
+			path: "codex",
+			modelId: "gpt-5.1-codex",
+			outputSchema: "schema.json",
+			sandbox: "docker",
+			fullAuto: true,
 			env: undefined,
 		})
 	})
@@ -84,6 +126,9 @@ describe("CodexCliHandler", () => {
 			prompt: "System: Hello\n\nUser: Hi",
 			path: "codex",
 			modelId: "gpt-5.1-codex",
+			outputSchema: undefined,
+			sandbox: undefined,
+			fullAuto: undefined,
 			env: { OPENAI_API_KEY: "sk-test-123" },
 		})
 	})

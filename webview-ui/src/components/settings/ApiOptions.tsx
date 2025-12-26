@@ -947,39 +947,41 @@ const ApiOptions = ({
 
 			{selectedProviderModels.length > 0 && (
 				<>
-					<div>
-						<label className="block font-medium mb-1">{t("settings:providers.model")}</label>
-						<Select
-							value={selectedModelId === "custom-arn" ? "custom-arn" : selectedModelId}
-							onValueChange={(value) => {
-								setApiConfigurationField("apiModelId", value)
+					{selectedProvider !== "codex-cli" && (
+						<div>
+							<label className="block font-medium mb-1">{t("settings:providers.model")}</label>
+							<Select
+								value={selectedModelId === "custom-arn" ? "custom-arn" : selectedModelId}
+								onValueChange={(value) => {
+									setApiConfigurationField("apiModelId", value)
 
-								// Clear custom ARN if not using custom ARN option.
-								if (value !== "custom-arn" && selectedProvider === "bedrock") {
-									setApiConfigurationField("awsCustomArn", "")
-								}
+									// Clear custom ARN if not using custom ARN option.
+									if (value !== "custom-arn" && selectedProvider === "bedrock") {
+										setApiConfigurationField("awsCustomArn", "")
+									}
 
-								// Clear reasoning effort when switching models to allow the new model's default to take effect
-								// This is especially important for GPT-5 models which default to "medium"
-								if (selectedProvider === "openai-native") {
-									setApiConfigurationField("reasoningEffort", undefined)
-								}
-							}}>
-							<SelectTrigger className="w-full">
-								<SelectValue placeholder={t("settings:common.select")} />
-							</SelectTrigger>
-							<SelectContent>
-								{selectedProviderModels.map((option) => (
-									<SelectItem key={option.value} value={option.value}>
-										{option.label}
-									</SelectItem>
-								))}
-								{selectedProvider === "bedrock" && (
-									<SelectItem value="custom-arn">{t("settings:labels.useCustomArn")}</SelectItem>
-								)}
-							</SelectContent>
-						</Select>
-					</div>
+									// Clear reasoning effort when switching models to allow the new model's default to take effect
+									// This is especially important for GPT-5 models which default to "medium"
+									if (selectedProvider === "openai-native") {
+										setApiConfigurationField("reasoningEffort", undefined)
+									}
+								}}>
+								<SelectTrigger className="w-full">
+									<SelectValue placeholder={t("settings:common.select")} />
+								</SelectTrigger>
+								<SelectContent>
+									{selectedProviderModels.map((option) => (
+										<SelectItem key={option.value} value={option.value}>
+											{option.label}
+										</SelectItem>
+									))}
+									{selectedProvider === "bedrock" && (
+										<SelectItem value="custom-arn">{t("settings:labels.useCustomArn")}</SelectItem>
+									)}
+								</SelectContent>
+							</Select>
+						</div>
+					)}
 
 					{/* Show error if a deprecated model is selected */}
 					{selectedModelInfo?.deprecated && (

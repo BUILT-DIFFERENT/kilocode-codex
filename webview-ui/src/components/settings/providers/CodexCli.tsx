@@ -1,7 +1,7 @@
 import { useCallback } from "react"
-import { VSCodeTextField, VSCodeLink } from "@vscode/webview-ui-toolkit/react"
+import { VSCodeCheckbox, VSCodeTextField, VSCodeLink } from "@vscode/webview-ui-toolkit/react"
 
-import type { ProviderSettings } from "@roo-code/types"
+import { codexCliDefaultModelId, type ProviderSettings } from "@roo-code/types"
 
 import { useAppTranslation } from "@src/i18n/TranslationContext"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@src/components/ui"
@@ -63,6 +63,17 @@ export const CodexCli = ({ apiConfiguration, setApiConfigurationField }: CodexCl
 				{t("settings:providers.codexCli.pathDescription")}
 			</div>
 
+			<VSCodeTextField
+				value={apiConfiguration?.apiModelId || ""}
+				onInput={handleInputChange("apiModelId")}
+				placeholder={codexCliDefaultModelId}
+				className="w-full mt-3">
+				<label className="block font-medium mb-1">{t("settings:providers.codexCli.modelIdLabel")}</label>
+			</VSCodeTextField>
+			<div className="text-sm text-vscode-descriptionForeground -mt-2">
+				{t("settings:providers.codexCli.modelIdDescription")}
+			</div>
+
 			{authMode === "api-key" && (
 				<>
 					<VSCodeTextField
@@ -81,6 +92,44 @@ export const CodexCli = ({ apiConfiguration, setApiConfigurationField }: CodexCl
 					</div>
 				</>
 			)}
+
+			<VSCodeTextField
+				value={apiConfiguration?.codexCliOutputSchema || ""}
+				onInput={handleInputChange("codexCliOutputSchema")}
+				placeholder={t("settings:providers.codexCli.outputSchemaPlaceholder")}
+				className="w-full mt-3">
+				<label className="block font-medium mb-1">{t("settings:providers.codexCli.outputSchemaLabel")}</label>
+			</VSCodeTextField>
+			<div className="text-sm text-vscode-descriptionForeground -mt-2">
+				{t("settings:providers.codexCli.outputSchemaDescription")}
+			</div>
+
+			<VSCodeTextField
+				value={apiConfiguration?.codexCliSandbox || ""}
+				onInput={handleInputChange("codexCliSandbox")}
+				placeholder={t("settings:providers.codexCli.sandboxPlaceholder")}
+				className="w-full mt-3">
+				<label className="block font-medium mb-1">{t("settings:providers.codexCli.sandboxLabel")}</label>
+			</VSCodeTextField>
+			<div className="text-sm text-vscode-descriptionForeground -mt-2">
+				{t("settings:providers.codexCli.sandboxDescription")}
+			</div>
+
+			<div className="mt-3">
+				<VSCodeCheckbox
+					checked={apiConfiguration?.codexCliFullAuto ?? false}
+					onChange={(event: unknown) =>
+						setApiConfigurationField(
+							"codexCliFullAuto",
+							(event as { target: HTMLInputElement }).target.checked,
+						)
+					}>
+					{t("settings:providers.codexCli.fullAutoLabel")}
+				</VSCodeCheckbox>
+				<div className="text-sm text-vscode-descriptionForeground mt-1">
+					{t("settings:providers.codexCli.fullAutoDescription")}
+				</div>
+			</div>
 
 			<div className="text-sm text-vscode-descriptionForeground mt-3">
 				{t("settings:providers.codexCli.description")}
