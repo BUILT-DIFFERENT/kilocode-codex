@@ -239,6 +239,9 @@ const codexCliSchema = apiModelIdProviderModelSchema.extend({
 	codexCliPath: z.string().optional(),
 	codexCliAuthMode: codexCliAuthModeSchema.optional(),
 	codexCliApiKey: z.string().optional(),
+	codexCliOutputSchema: z.string().optional(),
+	codexCliSandbox: z.string().optional(),
+	codexCliFullAuto: z.boolean().optional(),
 })
 
 // kilocode_change start

@@ -423,9 +423,11 @@ function getSelectedModel({
 			return { id, info }
 		}
 		case "codex-cli": {
-			const id = apiConfiguration.apiModelId ?? codexCliDefaultModelId
-			const info = codexCliModels[id as keyof typeof codexCliModels]
-			return { id, info: { ...openAiModelInfoSaneDefaults, ...info } }
+			const resolvedId = apiConfiguration.apiModelId?.trim() || codexCliDefaultModelId
+			const info =
+				codexCliModels[resolvedId as keyof typeof codexCliModels] ??
+				codexCliModels[codexCliDefaultModelId as keyof typeof codexCliModels]
+			return { id: resolvedId, info: { ...openAiModelInfoSaneDefaults, ...info } }
 		}
 		case "virtual-quota-fallback": {
 			if (virtualQuotaActiveModel) {

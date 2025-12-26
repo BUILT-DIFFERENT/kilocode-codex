@@ -5,7 +5,13 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { renderHook } from "@testing-library/react"
 import type { Mock } from "vitest"
 
-import { ProviderSettings, ModelInfo, BEDROCK_1M_CONTEXT_MODEL_IDS, litellmDefaultModelInfo } from "@roo-code/types"
+import {
+	ProviderSettings,
+	ModelInfo,
+	BEDROCK_1M_CONTEXT_MODEL_IDS,
+	codexCliDefaultModelId,
+	litellmDefaultModelInfo,
+} from "@roo-code/types"
 
 import { useSelectedModel } from "../useSelectedModel"
 import { useRouterModels } from "../useRouterModels"
@@ -37,6 +43,71 @@ const createWrapper = () => {
 }
 
 describe("useSelectedModel", () => {
+	describe("Codex CLI provider", () => {
+		it("should preserve custom model ids and fall back to the default model info", () => {
+			mockUseRouterModels.mockReturnValue({
+				data: {
+					openrouter: {},
+					requesty: {},
+					glama: {}, // kilocode_change
+					unbound: {},
+					litellm: {},
+					"io-intelligence": {},
+				},
+				isLoading: false,
+				isError: false,
+			} as any)
+
+			mockUseOpenRouterModelProviders.mockReturnValue({
+				data: {},
+				isLoading: false,
+				isError: false,
+			} as any)
+
+			const apiConfiguration: ProviderSettings = {
+				apiProvider: "codex-cli",
+				apiModelId: "custom-codex-model",
+			}
+
+			const wrapper = createWrapper()
+			const { result } = renderHook(() => useSelectedModel(apiConfiguration), { wrapper })
+
+			expect(result.current.id).toBe("custom-codex-model")
+			expect(result.current.info?.supportsImages).toBe(false)
+		})
+
+		it("should fall back to the default model when none is configured", () => {
+			mockUseRouterModels.mockReturnValue({
+				data: {
+					openrouter: {},
+					requesty: {},
+					glama: {}, // kilocode_change
+					unbound: {},
+					litellm: {},
+					"io-intelligence": {},
+				},
+				isLoading: false,
+				isError: false,
+			} as any)
+
+			mockUseOpenRouterModelProviders.mockReturnValue({
+				data: {},
+				isLoading: false,
+				isError: false,
+			} as any)
+
+			const apiConfiguration: ProviderSettings = {
+				apiProvider: "codex-cli",
+				apiModelId: "   ",
+			}
+
+			const wrapper = createWrapper()
+			const { result } = renderHook(() => useSelectedModel(apiConfiguration), { wrapper })
+
+			expect(result.current.id).toBe(codexCliDefaultModelId)
+		})
+	})
+
 	describe("OpenRouter provider merging", () => {
 		it("should merge base model info with specific provider info when both exist", () => {
 			const baseModelInfo: ModelInfo = {

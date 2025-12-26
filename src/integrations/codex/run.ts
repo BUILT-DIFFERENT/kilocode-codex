@@ -8,6 +8,9 @@ type CodexCliOptions = {
 	prompt: string
 	path?: string
 	modelId?: string
+	outputSchema?: string
+	sandbox?: string
+	fullAuto?: boolean
 	env?: NodeJS.ProcessEnv
 }
 
@@ -187,12 +190,28 @@ async function getCodexAuthStatusFromExec({
 	}
 }
 
-function runProcess({ prompt, path, modelId, env }: CodexCliOptions) {
+function runProcess(options: CodexCliOptions) {
+	const { prompt, path, modelId, env, outputSchema, sandbox, fullAuto } = options
 	const codexPath = path || "codex"
 	const args = ["exec", "--json"]
+	const resolvedModelId = modelId?.trim()
 
-	if (modelId) {
-		args.push("--model", modelId)
+	if (resolvedModelId) {
+		args.push("--model", resolvedModelId)
+	}
+
+	const resolvedOutputSchema = outputSchema?.trim()
+	if (resolvedOutputSchema) {
+		args.push("--output-schema", resolvedOutputSchema)
+	}
+
+	const resolvedSandbox = sandbox?.trim()
+	if (resolvedSandbox) {
+		args.push("--sandbox", resolvedSandbox)
+	}
+
+	if (fullAuto) {
+		args.push("--full-auto")
 	}
 
 	const child = execa(codexPath, args, {

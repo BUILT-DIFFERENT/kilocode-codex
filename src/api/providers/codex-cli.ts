@@ -37,6 +37,9 @@ export class CodexCliHandler extends BaseProvider implements ApiHandler {
 			prompt,
 			path: this.options.codexCliPath,
 			modelId: model.id,
+			outputSchema: this.options.codexCliOutputSchema,
+			sandbox: this.options.codexCliSandbox,
+			fullAuto: this.options.codexCliFullAuto,
 			env,
 		})) {
 			const errorMessage = getCodexError(event)
@@ -49,13 +52,12 @@ export class CodexCliHandler extends BaseProvider implements ApiHandler {
 	}
 
 	getModel(): { id: string; info: ModelInfo } {
-		const modelId = this.options.apiModelId
+		const modelId = this.options.apiModelId?.trim()
+		const resolvedId = modelId && modelId.length > 0 ? modelId : codexCliDefaultModelId
+		const info =
+			codexCliModels[resolvedId as CodexCliModelId] ?? codexCliModels[codexCliDefaultModelId as CodexCliModelId]
 
-		if (modelId && modelId in codexCliModels) {
-			return { id: modelId as CodexCliModelId, info: codexCliModels[modelId as CodexCliModelId] }
-		}
-
-		return { id: codexCliDefaultModelId, info: codexCliModels[codexCliDefaultModelId] }
+		return { id: resolvedId, info }
 	}
 
 	private async *processEvent(event: CodexCliEvent, modelInfo: ModelInfo): ApiStream {
