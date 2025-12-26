@@ -34,6 +34,7 @@ export const PROVIDER_LABELS: Record<ProviderName, string> = {
 	featherless: "Featherless",
 	deepinfra: "DeepInfra",
 	"io-intelligence": "IO Intelligence",
+	"codex-cli": "Codex CLI",
 	"qwen-code": "Qwen Code",
 	"gemini-cli": "Gemini CLI",
 	zai: "Zai",

@@ -38,6 +38,7 @@ This guide provides detailed information on how to configure each provider in Ki
     - [IO Intelligence](#io-intelligence)
     - [Qwen Code](#qwen-code)
     - [Gemini CLI](#gemini-cli)
+    - [Codex CLI](#codex-cli)
     - [ZAI](#zai)
     - [Minimax](#minimax)
     - [Unbound](#unbound)
@@ -1312,6 +1313,65 @@ Gemini CLI integration.
 
 - Requires OAuth credentials file
 - Requires Google Cloud project
+
+---
+
+### codex-cli
+
+Codex CLI integration.
+
+**Description**: Use OpenAI's Codex CLI with either ChatGPT-based login or API key authentication.
+
+**Required Fields**:
+
+- `codexCliAuthMode` (text): Authentication mode. Use `"chatgpt"` (default) for interactive login via `codex login` or `"api-key"` to authenticate with an API key.
+- `apiModelId` (text): The model to use (default: `gpt-5.1-codex-max`).
+
+**Optional Fields**:
+
+- `codexCliPath` (text): Path to the Codex CLI executable (default: `codex`).
+- `codexCliApiKey` (password): OpenAI API key used when `codexCliAuthMode` is set to `"api-key"`.
+- `codexCliOutputSchema` (text): JSON schema to enforce response shape.
+- `codexCliSandbox` (text): Sandbox identifier to isolate execution environments.
+- `codexCliFullAuto` (boolean): Enable fully automated tool execution.
+
+**Authentication Options**:
+
+- `chatgpt`: Uses the Codex CLI's interactive login flow (`codex login`).
+- `api-key`: Uses an API key supplied via `codexCliApiKey` or the `OPENAI_API_KEY` environment variable.
+
+**Required Environment Variables**:
+
+- `OPENAI_API_KEY`: Required when `codexCliAuthMode` is `"api-key"`.
+
+**Example Configuration**:
+
+```json
+{
+	"id": "default",
+	"provider": "codex-cli",
+	"codexCliPath": "codex",
+	"codexCliAuthMode": "api-key",
+	"codexCliApiKey": "sk-...",
+	"apiModelId": "gpt-5.1-codex-max",
+	"codexCliFullAuto": false
+}
+```
+
+**Default Model**: `gpt-5.1-codex-max`
+
+**Sample Commands**:
+
+- Check authentication status: `codex auth status --json`
+- Sign in with ChatGPT credentials: `codex login`
+- Run a prompt with JSON streaming: `echo "Write a unit test" | codex exec --model gpt-5.1-codex-max --json`
+- Run with an API key in one-off mode: `OPENAI_API_KEY="sk-..." echo "Summarize this project" | codex exec --model gpt-5.1-codex-max --json`
+
+**Notes**:
+
+- Install Codex CLI from https://github.com/openai/codex.
+- Use `codexCliAuthMode` to switch between ChatGPT login and API key workflows.
+- Set `codexCliOutputSchema` to enforce typed responses and `codexCliSandbox` to isolate execution.
 
 ---
 
