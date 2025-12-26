@@ -34,6 +34,7 @@ export const PROVIDER_REQUIRED_FIELDS: Record<ProviderName, string[]> = {
 	"io-intelligence": ["ioIntelligenceApiKey", "ioIntelligenceModelId"],
 	"qwen-code": ["qwenCodeOauthPath", "apiModelId"],
 	"gemini-cli": ["geminiCliOAuthPath", "geminiCliProjectId", "apiModelId"],
+	"codex-cli": ["codexCliPath", "apiModelId"],
 	zai: ["zaiApiKey", "zaiApiLine", "apiModelId"],
 	unbound: ["unboundApiKey", "unboundModelId"],
 	requesty: ["requestyApiKey", "requestyModelId"],

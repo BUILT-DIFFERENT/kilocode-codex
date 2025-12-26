@@ -7,6 +7,18 @@ vi.mock("../../../integrations/codex/run", () => ({
 	ensureCodexLogin: vi.fn(),
 }))
 
+// Mock i18n t() function to return English translations
+vi.mock("../../../i18n", () => ({
+	t: (key: string, params?: Record<string, string | number>) => {
+		// Handle the specific translation key used in message-filter.ts
+		if (key === "common:errors.codexCli.imageNotSupported") {
+			return `[Image (${params?.type}): ${params?.mediaType} not supported by Codex CLI]`
+		}
+		// Return key as fallback for any other translations
+		return key
+	},
+}))
+
 const { runCodexExec, ensureCodexLogin } = await import("../../../integrations/codex/run")
 const mockRunCodexExec = vi.mocked(runCodexExec)
 const mockEnsureCodexLogin = vi.mocked(ensureCodexLogin)

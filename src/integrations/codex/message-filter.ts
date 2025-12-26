@@ -1,4 +1,5 @@
 import type { Anthropic } from "@anthropic-ai/sdk"
+import { t } from "../../i18n"
 
 /**
  * Filters out image blocks from messages since Codex CLI doesn't support images.
@@ -18,7 +19,10 @@ export function filterMessagesForCodexCli(
 				const mediaType = block.source && "media_type" in block.source ? block.source.media_type : "unknown"
 				return {
 					type: "text" as const,
-					text: `[Image (${sourceType}): ${mediaType} not supported by Codex CLI]`,
+					text: t("common:errors.codexCli.imageNotSupported", {
+						type: sourceType,
+						mediaType: mediaType,
+					}),
 				}
 			}
 

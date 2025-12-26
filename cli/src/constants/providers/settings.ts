@@ -666,6 +666,48 @@ export const FIELD_REGISTRY: Record<string, FieldMetadata> = {
 		type: "text",
 		placeholder: "Enter profiles configuration...",
 	},
+
+	// Codex CLI fields
+	codexCliPath: {
+		label: "Codex CLI Path",
+		type: "text",
+		placeholder: "Enter Codex CLI path...",
+		description: "Path to the codex-cli executable",
+	},
+	codexCliAuthMode: {
+		label: "Authentication Mode",
+		type: "select",
+		options: [
+			{ value: "chatgpt", label: "ChatGPT Login", description: "Use existing ChatGPT session" },
+			{ value: "api-key", label: "API Key", description: "Use OpenAI API key" },
+		],
+		description: "How to authenticate with Codex CLI",
+	},
+	codexCliApiKey: {
+		label: "API Key",
+		type: "password",
+		placeholder: "Enter OpenAI API key...",
+		description: "OpenAI API key for authentication",
+	},
+	codexCliOutputSchema: {
+		label: "Output Schema",
+		type: "text",
+		placeholder: "Enter output schema path...",
+		isOptional: true,
+		description: "Path to output schema file",
+	},
+	codexCliSandbox: {
+		label: "Sandbox Type",
+		type: "text",
+		placeholder: "Enter sandbox type...",
+		isOptional: true,
+		description: "Sandbox environment type",
+	},
+	codexCliFullAuto: {
+		label: "Full Auto Mode",
+		type: "boolean",
+		description: "Enable full auto mode",
+	},
 }
 
 /**
@@ -1034,6 +1076,16 @@ export const getProviderSettings = (provider: ProviderName, config: ProviderSett
 				createFieldConfig("apiModelId", config, "synthetic-model"),
 			]
 
+		case "codex-cli":
+			return [
+				createFieldConfig("codexCliPath", config, "codex"),
+				createFieldConfig("codexCliAuthMode", config, "chatgpt"),
+				createFieldConfig("codexCliApiKey", config),
+				createFieldConfig("codexCliOutputSchema", config),
+				createFieldConfig("codexCliSandbox", config),
+				createFieldConfig("codexCliFullAuto", config),
+			]
+
 		case "sap-ai-core":
 			return [
 				createFieldConfig("sapAiCoreServiceKey", config),
@@ -1096,6 +1148,7 @@ export const PROVIDER_DEFAULT_MODELS: Record<ProviderName, string> = {
 	synthetic: "synthetic-model",
 	"sap-ai-core": "gpt-4o",
 	baseten: "zai-org/GLM-4.6",
+	"codex-cli": "gpt-5.1-codex-max",
 }
 
 /**

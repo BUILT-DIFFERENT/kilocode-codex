@@ -2,6 +2,7 @@ import * as vscode from "vscode"
 import readline from "readline"
 import { execa } from "execa"
 import type { CodexCliMessagePayload } from "@roo-code/types"
+import { t } from "../../i18n"
 
 export type CodexCliEvent = Record<string, any>
 
@@ -22,6 +23,7 @@ type ProcessState = {
 }
 
 const CODEX_CLI_INSTALLATION_URL = "https://github.com/openai/codex"
+const CODEX_CLI_TIMEOUT = 600000 // 10 minutes
 const cwd = vscode.workspace.workspaceFolders?.map((folder) => folder.uri.fsPath).at(0)
 
 export async function* runCodexExec(options: CodexCliOptions): AsyncGenerator<CodexCliEvent> {
@@ -91,7 +93,10 @@ export async function* runCodexExec(options: CodexCliOptions): AsyncGenerator<Co
 		if (exitCode !== null && exitCode !== 0) {
 			const errorOutput = (processState.error as any)?.message || processState.stderrLogs?.trim()
 			throw new Error(
-				`Codex CLI process exited with code ${exitCode}.${errorOutput ? ` Error output: ${errorOutput}` : ""}`,
+				t("common:errors.codexCli.processExit", {
+					code: exitCode,
+					error: errorOutput ? ` Error output: ${errorOutput}` : "",
+				}),
 			)
 		}
 	} finally {
@@ -161,7 +166,11 @@ export async function ensureCodexLogin({ path, env }: Pick<CodexCliOptions, "pat
 		})
 	} catch (error) {
 		const errorOutput = formatCodexCliError(error)
-		throw new Error(`Codex CLI login failed.${errorOutput ? ` Error output: ${errorOutput}` : ""}`)
+		throw new Error(
+			t("common:errors.codexCli.loginFailed", {
+				error: errorOutput ? ` Error output: ${errorOutput}` : "",
+			}),
+		)
 	}
 }
 
@@ -222,6 +231,7 @@ function runProcess(options: CodexCliOptions) {
 		cwd,
 		env: mergeEnv(env),
 		maxBuffer: 1024 * 1024 * 1000,
+		timeout: CODEX_CLI_TIMEOUT,
 	})
 
 	const stdinData = JSON.stringify(promptPayload)
@@ -329,9 +339,12 @@ function formatCodexCliError(error: unknown): string {
 }
 
 function createCodexCliNotFoundError(codexPath: string, originalError: Error): Error {
-	const error = new Error(
-		`Codex CLI not found at '${codexPath}'. Install it from ${CODEX_CLI_INSTALLATION_URL}. Original error: ${originalError.message}`,
-	)
+	const errorMessage = t("common:errors.codexCli.notFound", {
+		path: codexPath,
+		url: CODEX_CLI_INSTALLATION_URL,
+	})
+
+	const error = new Error(errorMessage)
 	error.name = "CodexCliNotFoundError"
 	return error
 }

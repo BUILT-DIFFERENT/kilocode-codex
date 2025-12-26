@@ -115,6 +115,13 @@
 		"qwenCode": {
 			"oauthLoadFailed": "Failed to load OAuth credentials. Please authenticate first: {{error}}"
 		},
+		"codexCli": {
+			"notFound": "Codex CLI not found at '{{path}}'. Install it from {{url}}",
+			"loginFailed": "Codex CLI login failed.{{error}}",
+			"processExit": "Codex CLI process exited with code {{code}}.{{error}}",
+			"error": "Codex CLI returned an error.{{message}}",
+			"imageNotSupported": "[Image ({{type}}): {{mediaType}} not supported by Codex CLI]"
+		},
 		"message": {
 			"no_active_task_to_delete": "No active task to delete messages from",
 			"invalid_timestamp_for_deletion": "Invalid message timestamp for deletion",
